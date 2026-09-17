@@ -1,0 +1,29 @@
+{
+	"name": "pi-extension-neon-ai-gateway",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Pi extension that registers Neon AI Gateway as a model provider",
+	"type": "module",
+	"scripts": {
+		"clean": "rm -rf dist .tsbuildinfo",
+		"build": "tsc -p tsconfig.json --noEmit",
+		"check": "tsc -p tsconfig.json --noEmit",
+		"test": "vitest run",
+		"test:smoke": "tsx test/smoke.ts"
+	},
+	"pi": {
+		"extensions": [
+			"./src/index.ts"
+		]
+	},
+	"dependencies": {
+		"@earendil-works/pi-ai": "*",
+		"@earendil-works/pi-coding-agent": "*"
+	},
+	"devDependencies": {
+		"@types/node": "^22.0.0",
+		"tsx": "^4.19.0",
+		"typescript": "^5.6.0",
+		"vitest": "^2.1.0"
+	}
+}
