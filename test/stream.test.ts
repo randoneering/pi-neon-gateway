@@ -107,7 +107,7 @@ describe("transformNeonPayload", () => {
 	});
 
 	describe("Luna family", () => {
-		it("strips reasoning_effort for gpt-5-6-luna when tools are present", () => {
+		it("forces reasoning_effort none for gpt-5-6-luna when tools are present", () => {
 			const result = transformNeonPayload(
 				withBase({
 					reasoning_effort: "high",
@@ -115,8 +115,18 @@ describe("transformNeonPayload", () => {
 				}),
 				"gpt-5-6-luna",
 			) as Record<string, unknown>;
-			expect(result.reasoning_effort).toBeUndefined();
+			expect(result.reasoning_effort).toBe("none");
 			expect(result.tools).toBeDefined();
+		});
+
+		it("forces reasoning_effort none for gpt-5-6-luna with tools even when omitted", () => {
+			const result = transformNeonPayload(
+				withBase({
+					tools: [{ type: "function", function: { name: "ls", parameters: {} } }],
+				}),
+				"gpt-5-6-luna",
+			) as Record<string, unknown>;
+			expect(result.reasoning_effort).toBe("none");
 		});
 
 		it("keeps reasoning_effort for gpt-5-6-luna without tools", () => {

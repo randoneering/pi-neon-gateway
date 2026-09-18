@@ -90,10 +90,10 @@ export function transformNeonPayload(value: unknown, modelId: string): unknown {
 	} else if (id.includes("glm") || id.includes("inkling") || id.includes("kimi")) {
 		removeKeys(payload, ["frequency_penalty", "presence_penalty"]);
 	} else if (id === "gpt-5-6-luna") {
-		// The gateway rejects function tools combined with reasoning_effort
-		// for this model in chat completions. Effort alone is fine, so strip
-		// it only when the request carries tools.
-		if (payload.tools !== undefined) removeKeys(payload, ["reasoning_effort"]);
+		// The gateway rejects function tools unless reasoning_effort is
+		// explicitly "none" in chat completions. Omitting the field leaves
+		// the model's default effort, which is rejected too, so set it.
+		if (payload.tools !== undefined) payload.reasoning_effort = "none";
 	}
 	return payload;
 }
