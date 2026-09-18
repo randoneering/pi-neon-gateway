@@ -110,4 +110,4 @@ npm run test:smoke     # hits a real Neon endpoint (needs NEON_AI_GATEWAY_TOKEN 
 
 ## License
 
-MIT. See [LICENSE](./LICENSE).
+GPL-3.0. See [LICENSE](./LICENSE).

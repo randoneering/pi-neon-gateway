@@ -3,6 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"description": "Pi extension that registers Neon AI Gateway as a model provider",
+	"license": "GPL-3.0",
 	"type": "module",
 	"scripts": {
 		"clean": "rm -rf dist .tsbuildinfo",
