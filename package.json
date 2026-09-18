@@ -16,7 +16,7 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/randoneering/pi-neon-gateway.git"
+		"url": "git+https://github.com/randoneering/pi-provider-neon-ai-gateway.git"
 	},
 	"files": [
 		"src",

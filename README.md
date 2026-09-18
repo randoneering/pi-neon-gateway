@@ -13,19 +13,19 @@ pi install npm:pi-provider-neon-ai-gateway
 Or from git:
 
 ```bash
-pi install git:github.com/randoneering/pi-neon-gateway
+pi install git:github.com/randoneering/pi-provider-neon-ai-gateway
 ```
 
 Or clone into an extensions directory:
 
 ```bash
-git clone https://github.com/randoneering/pi-neon-gateway ~/.pi/agent/extensions/neon-ai-gateway
+git clone https://github.com/randoneering/pi-provider-neon-ai-gateway ~/.pi/agent/extensions/neon-ai-gateway
 ```
 
 For a one-off test:
 
 ```bash
-pi -e /path/to/pi-neon-gateway/src/index.ts
+pi -e /path/to/pi-provider-neon-ai-gateway/src/index.ts
 ```
 
 ## Configure
