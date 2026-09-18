@@ -106,6 +106,28 @@ describe("transformNeonPayload", () => {
 		});
 	});
 
+	describe("Luna family", () => {
+		it("strips reasoning_effort for gpt-5-6-luna when tools are present", () => {
+			const result = transformNeonPayload(
+				withBase({
+					reasoning_effort: "high",
+					tools: [{ type: "function", function: { name: "ls", parameters: {} } }],
+				}),
+				"gpt-5-6-luna",
+			) as Record<string, unknown>;
+			expect(result.reasoning_effort).toBeUndefined();
+			expect(result.tools).toBeDefined();
+		});
+
+		it("keeps reasoning_effort for gpt-5-6-luna without tools", () => {
+			const result = transformNeonPayload(
+				withBase({ reasoning_effort: "high" }),
+				"gpt-5-6-luna",
+			) as Record<string, unknown>;
+			expect(result.reasoning_effort).toBe("high");
+		});
+	});
+
 	describe("Gemini family", () => {
 		it("removes all sampling params for gemini-3-6-flash", () => {
 			const result = transformNeonPayload(

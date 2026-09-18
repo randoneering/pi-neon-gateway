@@ -89,6 +89,11 @@ export function transformNeonPayload(value: unknown, modelId: string): unknown {
 		removeKeys(payload, ["frequency_penalty", "presence_penalty", "seed"]);
 	} else if (id.includes("glm") || id.includes("inkling") || id.includes("kimi")) {
 		removeKeys(payload, ["frequency_penalty", "presence_penalty"]);
+	} else if (id === "gpt-5-6-luna") {
+		// The gateway rejects function tools combined with reasoning_effort
+		// for this model in chat completions. Effort alone is fine, so strip
+		// it only when the request carries tools.
+		if (payload.tools !== undefined) removeKeys(payload, ["reasoning_effort"]);
 	}
 	return payload;
 }
