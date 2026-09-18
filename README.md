@@ -2,7 +2,49 @@
 
 Pi extension that registers [Neon AI Gateway](https://neon.com/docs/ai-gateway/overview) as a model provider.
 
-Neon AI Gateway is an OpenAI-compatible LLM gateway built into your Neon Postgres branch. One credential gives you access to open-weight and foundation models from OpenAI, Google, Meta, xAI, Moonshot, Alibaba, and more.
+## About Neon AI Gateway
+
+Neon AI Gateway is the LLM inference layer built into the Neon backend — a Postgres-native gateway that exposes open-weight and foundation models from OpenAI, Google, Meta, xAI, Moonshot, Alibaba, ZhipuAI, and others behind one credential. Per the [official overview](https://neon.com/docs/ai-gateway/overview):
+
+> One API for open-weight and foundation models from OpenAI, Google, and more. Built into your Neon project.
+
+Key properties:
+
+- **One credential across all providers.** Call models like GPT-5.5, Grok 4.6, Kimi K3, and Gemini 3.6 Flash with no separate account for each.
+- **Scoped to your branch.** Each Neon branch has its own gateway endpoint, so AI requests inherit the same scope as your data.
+- **Keep your SDK.** Standard OpenAI Chat Completions shape — `Authorization: Bearer`, `POST /v1/chat/completions`, SSE streaming. No new client to learn.
+- **No markup.** Per [pricing docs](https://neon.com/docs/ai-gateway/overview#pricing): Neon charges the same per-token rate as the model provider.
+- **Prepaid credits.** 1 credit = $1 USD, $5 minimum, 12-month validity.
+
+### Access requirements
+
+Per [the docs](https://neon.com/docs/ai-gateway/overview#model-access):
+
+- **Plan:** Neon Launch or Scale (free tier cannot use AI Gateway).
+- **Region:** Project must live in one of: `aws-us-east-2`, `aws-us-east-1`, `aws-eu-central-1`, `aws-ap-southeast-1`.
+- **Credits:** Buy prepaid credits at **Billing** in the Neon Console (minimum $5).
+- **Foundation models:** GPT-5.x, Gemini 3.x, Grok, Claude, Inkling are rolled out gradually — use the **Apply for access** button on the AI Gateway page to request them. Open-weight models (Llama, Qwen, GLM, GPT-OSS, Gemma, Kimi) work as soon as credits are loaded.
+
+### Endpoint shape
+
+The gateway follows the OpenAI Chat Completions API. A minimal request looks like:
+
+```bash
+curl "$NEON_AI_GATEWAY_BASE_URL/v1/chat/completions" \
+  -H "Authorization: Bearer $NEON_AI_GATEWAY_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "gpt-5-mini", "messages": [{"role": "user", "content": "hi"}]}'
+```
+
+Error responses are JSON with an `error.message` field. Common status codes (full table in [docs](https://neon.com/docs/ai-gateway/chat-completions#error-handling)):
+
+| Status | Meaning |
+|---|---|
+| `401` | Missing or invalid `NEON_AI_GATEWAY_TOKEN` |
+| `403` | Credential lacks `ai_gateway:invoke` scope or branch is not in the credential lineage |
+| `413` | Request body exceeds 32 MiB |
+| `429` | Account quota (`REQUEST_LIMIT_EXCEEDED`) or upstream provider rate limit — honor `Retry-After` and `X-Ratelimit-*` headers |
+| `502` | Upstream workspace error — retry |
 
 ## Install
 
@@ -131,3 +173,17 @@ NEON_AI_GATEWAY_TOKEN=<token> NEON_AI_GATEWAY_BASE_URL=<base> npm run test:smoke
 ## License
 
 MIT. See [LICENSE](./LICENSE).
+
+## Documentation
+
+- [Neon AI Gateway overview](https://neon.com/docs/ai-gateway/overview)
+- [Quickstart](https://neon.com/docs/ai-gateway/get-started)
+- [Authentication & branch-scoped credentials](https://neon.com/docs/ai-gateway/authentication)
+- [Model catalog](https://neon.com/docs/ai-gateway/models) (canonical list, mirrored at [neon.com/models.json](https://neon.com/models.json) and [models.dev/neon](https://models.dev/providers/neon))
+- [Chat completions reference](https://neon.com/docs/ai-gateway/chat-completions)
+- [Prepaid credits & pricing](https://neon.com/docs/ai-gateway/overview#pricing)
+- [Troubleshooting](https://neon.com/docs/ai-gateway/troubleshooting)
+- [Neon CLI](https://neon.com/docs/cli/credentials) (`neon credentials create --scope ai_gateway:invoke`)
+- [Neon status](https://neonstatus.com) for live incidents
+
+If the gateway or your account rejects a model the README lists, the most common cause is the per-model access gate — see [Model access](https://neon.com/docs/ai-gateway/overview#model-access) and the `enabled` field on [GET /v1/models](https://neon.com/docs/ai-gateway/models#check-what-your-account-can-call).
