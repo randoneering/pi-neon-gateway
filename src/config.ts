@@ -1,8 +1,8 @@
 /**
  * Neon AI Gateway configuration constants and helpers.
  *
- * Mirrors the env vars used by pi's built-in Neon provider so users can
- * reuse credentials across the extension and the built-in.
+ * `NEON_AI_GATEWAY_TOKEN` holds the gateway token and
+ * `NEON_AI_GATEWAY_BASE_URL` holds the branch endpoint.
  */
 
 export const NEON_AI_GATEWAY_TOKEN_ENV = "NEON_AI_GATEWAY_TOKEN";
@@ -16,8 +16,7 @@ export const NEON_AI_GATEWAY_BASE_URL_ENV = "NEON_AI_GATEWAY_BASE_URL";
  * - Strips trailing slashes and any trailing `/v1` segment so callers can
  *   append `/v1` themselves without producing `//v1`
  *
- * Throws on invalid input so misconfigurations fail fast at login time
- * instead of producing confusing request errors later.
+ * Throws on invalid input so bad config fails at login, not on the first request.
  */
 export function normalizeNeonBaseUrl(value: string): string {
 	const url = new URL(value.trim());
@@ -40,15 +39,10 @@ export interface ResolveOptions {
 }
 
 /**
- * Resolve the effective Neon base URL, returning a value ready to use as
- * `<base>/v1` (with the `/v1` suffix appended).
+ * Resolve the effective Neon base URL, ready for a `/v1` suffix.
  *
- * Lookup order:
- * 1. credentialEnv (provider-scoped env from auth.json)
- * 2. processEnv (ambient shell env)
- *
- * Returns undefined when no source provides a value, so callers can decide
- * whether to error, fall back to a placeholder, or skip work.
+ * Checks credentialEnv (stored credential) first, then processEnv (shell).
+ * Returns undefined when neither is set.
  */
 export function resolveNeonBaseUrl(options: ResolveOptions = {}): string | undefined {
 	const fromCredential = options.credentialEnv?.[NEON_AI_GATEWAY_BASE_URL_ENV];

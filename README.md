@@ -1,17 +1,25 @@
-# pi-extension-neon-ai-gateway
+# pi-provider-neon-ai-gateway
 
-Pi extension that registers [Neon AI Gateway](https://neon.com/docs/ai-gateway/overview) as a model provider.
+Pi extension that registers [Neon AI Gateway](https://neon.com/docs/ai-gateway/overview) as a model provider. Published to npm and listed in the pi package gallery at [pi.dev/packages](https://pi.dev/packages).
 
 ## Install
 
+From npm:
+
 ```bash
-pi install git:github.com/mezotv/pi-neon-gateway
+pi install npm:pi-provider-neon-ai-gateway
+```
+
+Or from git:
+
+```bash
+pi install git:github.com/randoneering/pi-neon-gateway
 ```
 
 Or clone into an extensions directory:
 
 ```bash
-git clone https://github.com/mezotv/pi-neon-gateway ~/.pi/agent/extensions/neon-ai-gateway
+git clone https://github.com/randoneering/pi-neon-gateway ~/.pi/agent/extensions/neon-ai-gateway
 ```
 
 For a one-off test:
@@ -42,7 +50,7 @@ export NEON_AI_GATEWAY_BASE_URL="https://br-your-branch.ai.c-2.us-east-2.aws.neo
 pi
 ```
 
-Or run `/neon-login` inside pi and paste both values. `/neon-status` shows the resolved base URL; `/neon-logout` clears it.
+Or run `/neon-login` inside pi and paste both values. `/neon-status` shows the resolved base URL. `/neon-logout` clears it.
 
 ## Use
 
@@ -65,7 +73,7 @@ Sourced from [neon.com/models.json](https://neon.com/models.json). Regenerate `s
 - **ZhipuAI**: glm-5-2, glm-5-3-flash
 - **Thinking Machines**: inkling
 
-GPT-5.x, Gemini 3.x, Grok, Claude, and Inkling are foundation models and need the **Apply for access** step in the Console. The rest work as soon as credits are loaded.
+GPT-5.x, Gemini 3.x, Grok, and Inkling are foundation models and need the **Apply for access** step in the Console. The rest work as soon as credits are loaded.
 
 ## Errors
 

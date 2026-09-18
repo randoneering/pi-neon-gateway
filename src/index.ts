@@ -1,18 +1,14 @@
 /**
  * Pi extension entry point: register Neon AI Gateway as a model provider.
  *
- * Authentication is configured two ways:
+ * Two ways to authenticate:
  *
- * 1. Environment variables: `NEON_AI_GATEWAY_TOKEN` and `NEON_AI_GATEWAY_BASE_URL`
- *    are interpolated by pi when resolving the provider config. This works
- *    out of the box for shell-driven setups and CI.
+ * 1. Env vars: set `NEON_AI_GATEWAY_TOKEN` and `NEON_AI_GATEWAY_BASE_URL`.
+ *    pi reads them when it resolves the provider config.
+ * 2. Run `/neon-login` (see `./auth.ts`). It writes an api_key credential
+ *    plus a base URL override to `auth.json`.
  *
- * 2. Stored credential via the `/neon-login` command (see `./auth.ts`). It
- *    writes an api_key credential with a `NEON_AI_GATEWAY_BASE_URL` env
- *    override into `auth.json`, matching the format that pi's resolver
- *    understands for provider-scoped env values.
- *
- * Use `/model` to pick a model, then run pi normally.
+ * Then pick a model with `/model`.
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";

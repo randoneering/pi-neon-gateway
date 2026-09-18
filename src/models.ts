@@ -1,11 +1,8 @@
 /**
  * Static catalog of models served by Neon AI Gateway.
  *
- * Source of truth: https://neon.com/models.json (mirrored to models.dev).
- * Regenerate with `npm run update-models` after upstream changes.
- *
- * Each entry matches the ProviderModelConfig shape expected by
- * pi.registerProvider(). Cost values are USD per million tokens.
+ * Source: https://neon.com/models.json. Update this file when upstream adds
+ * or changes models. Costs are USD per million tokens.
  */
 
 import type { Model } from "@earendil-works/pi-ai";

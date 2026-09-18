@@ -1,35 +1,26 @@
 /**
- * Unit tests for the auth file read/write helpers.
+ * Unit tests for the auth.json file format used by /neon-login.
  *
- * These cover the pure logic: parsing, validation, and merging of credentials
- * into an existing auth.json. They do not invoke pi's UI (which is harder to
- * mock) or touch the real `~/.pi/agent/auth.json`.
+ * auth.ts keeps its read/write helpers private, so these tests re-implement
+ * the read step and assert on the JSON on disk. The agent dir is redirected
+ * to a temp directory, so the real ~/.pi/agent/auth.json is never touched.
  */
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { setAgentDir, unsetAgentDir } from "./helpers/agent-dir.js";
-
-// We test the internal helpers by re-exporting them from auth.ts via a tiny
-// side-channel: the auth module reads from getAgentDir(), so we point that at
-// a temp directory for each test.
 import * as authModule from "../src/auth.js";
 
-// auth.ts doesn't export its read/write helpers, so we exercise the module
-// via the public /neon-login flow by setting NEON_AI_GATEWAY_* env vars.
-// Instead we re-implement just enough of the file logic to assert behavior.
+// Stands in for auth.ts's private readAuthFile, close enough to assert on
+// the file contents the login command writes.
 function readAuthFileLike(authPath: string): Record<string, unknown> {
 	if (!existsSync(authPath)) return {};
 	const raw = readFileSync(authPath, "utf-8");
 	if (!raw.trim()) return {};
 	return JSON.parse(raw) as Record<string, unknown>;
 }
-
-// Use these lightweight helpers from node:fs instead of importing auth's
-// internals; we trust the smoke flow for the full integration.
-import { existsSync, readFileSync } from "node:fs";
 
 describe("auth file shape", () => {
 	let tempDir: string;

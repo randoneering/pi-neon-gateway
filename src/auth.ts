@@ -1,16 +1,13 @@
 /**
- * Neon AI Gateway authentication commands.
+ * Neon AI Gateway auth commands: /neon-login, /neon-logout, /neon-status.
  *
- * `/login neon` (the built-in flow) only supports providers that register an
- * `oauth` field, and Neon's auth is just a static token + branch base URL
- * (no OAuth dance, no refresh). Rather than shoehorn that into the OAuth
- * interface, this module exposes explicit `/neon-login` and `/neon-logout`
- * commands that write directly to `auth.json` with the api_key + env shape
- * that pi's resolver expects.
+ * pi's built-in login only handles OAuth providers. Neon auth is a static
+ * token plus a branch base URL, so these commands write an api_key
+ * credential plus env overrides straight to auth.json, in the shape pi's
+ * resolver reads.
  *
- * Users who prefer environment variables can skip these commands and just
- * export `NEON_AI_GATEWAY_TOKEN` and `NEON_AI_GATEWAY_BASE_URL` before
- * starting pi.
+ * Env vars work too. Set NEON_AI_GATEWAY_TOKEN and NEON_AI_GATEWAY_BASE_URL
+ * before starting pi and skip these commands.
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";

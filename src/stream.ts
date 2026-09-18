@@ -6,8 +6,8 @@
  *
  * - Strips JSON-Schema `$schema` markers and unsupported OpenAI fields
  * - Removes sampling params (frequency_penalty, presence_penalty, seed,
- *   temperature, top_p, ...) per model family. Different upstreams reject
- *   different parameter sets.
+ *   temperature, top_p, ...) per model family, since each upstream rejects
+ *   a different set.
  * - Translates GPT-OSS "harmony" content arrays into the flat
  *   `content` + `reasoning_content` shape that the OpenAI Chat Completions
  *   parser expects, so reasoning shows up in pi's thinking block.
@@ -60,10 +60,7 @@ function canonicalModelId(modelId: string): string {
 }
 
 /**
- * Apply the per-model payload cleaning the Neon gateway expects.
- *
- * Different upstream providers reject different OpenAI fields, so we strip
- * fields that are not part of the upstream's contract based on the model id.
+ * Strip the OpenAI fields a model's upstream rejects, keyed off the model id.
  */
 export function transformNeonPayload(value: unknown, modelId: string): unknown {
 	if (!isRecord(value)) return value;
