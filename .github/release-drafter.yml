@@ -1,0 +1,135 @@
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+
+# Labels decide the changelog section and the version bump. The autolabeler
+# below guesses from branch names (chore/foo, fix/bar) and commit subjects
+# (feat:, fix:). Relabel by hand before publishing if it guesses wrong.
+
+autolabeler:
+  - label: "feat"
+    branch:
+      - '/^feat(ure)?\//'
+    title:
+      - '/^feat(\(.+\))?:/i'
+  - label: "fix"
+    branch:
+      - '/^fix\//'
+    title:
+      - '/^fix(\(.+\))?:/i'
+  - label: "docs"
+    branch:
+      - '/^docs\//'
+    title:
+      - '/^docs(\(.+\))?:/i'
+  - label: "refactor"
+    branch:
+      - '/^refactor\//'
+    title:
+      - '/^refactor(\(.+\))?:/i'
+  - label: "test"
+    branch:
+      - '/^test\//'
+    title:
+      - '/^test(\(.+\))?:/i'
+  - label: "chore"
+    branch:
+      - '/^chore\//'
+    title:
+      - '/^chore(\(.+\))?:/i'
+  - label: "perf"
+    branch:
+      - '/^perf\//'
+    title:
+      - '/^perf(\(.+\))?:/i'
+  - label: "style"
+    branch:
+      - '/^style\//'
+    title:
+      - '/^style(\(.+\))?:/i'
+  - label: "ci"
+    branch:
+      - '/^ci\//'
+    title:
+      - '/^ci(\(.+\))?:/i'
+  - label: "build"
+    branch:
+      - '/^build\//'
+    title:
+      - '/^build(\(.+\))?:/i'
+  - label: "revert"
+    title:
+      - '/^revert:/i'
+  - label: "breaking"
+    title:
+      - '/^[a-z]+(\(.+\))?!:/i'
+    body:
+      - '/breaking change/i'
+
+categories:
+  - title: "Features"
+    labels:
+      - "feat"
+  - title: "Bug Fixes"
+    labels:
+      - "fix"
+  - title: "Documentation"
+    labels:
+      - "docs"
+  - title: "Refactoring"
+    labels:
+      - "refactor"
+  - title: "Testing"
+    labels:
+      - "test"
+  - title: "Chores"
+    labels:
+      - "chore"
+  - title: "Performance"
+    labels:
+      - "perf"
+  - title: "Style"
+    labels:
+      - "style"
+  - title: "CI/CD"
+    labels:
+      - "ci"
+  - title: "Build"
+    labels:
+      - "build"
+  - title: "Reverts"
+    labels:
+      - "revert"
+
+change-template: "- $TITLE (#$NUMBER) by @$AUTHOR"
+change-title-escapes: '\<*_&'
+
+version-resolver:
+  major:
+    labels:
+      - "major"
+      - "breaking"
+  minor:
+    labels:
+      - "minor"
+      - "feat"
+  patch:
+    labels:
+      - "patch"
+      - "fix"
+      - "docs"
+      - "refactor"
+      - "test"
+      - "chore"
+      - "perf"
+      - "style"
+      - "ci"
+      - "build"
+      - "revert"
+  default: patch
+
+template: |
+  ## What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

@@ -62,7 +62,7 @@ Pick any `neon/<model-id>`. All 34 models show up in `pi --list-models`.
 
 ## Models
 
-Sourced from [neon.com/models.json](https://neon.com/models.json). Regenerate `src/models.ts` when upstream adds models.
+Sourced from [neon.com/models.json](https://neon.com/models.json). Update `src/models.ts` when upstream adds models.
 
 - **OpenAI**: gpt-5, gpt-5-mini, gpt-5-nano, gpt-5-1, gpt-5-2, gpt-5-3-codex, gpt-5-4, gpt-5-4-mini, gpt-5-4-nano, gpt-5-5, gpt-5-5-pro, gpt-5-6-luna, gpt-5-6-sol, gpt-5-6-terra, gpt-6-astra, gpt-oss-120b, gpt-oss-20b
 - **Google**: gemini-3-1-flash-lite, gemini-3-1-pro, gemini-3-5-flash, gemini-3-5-flash-lite, gemini-3-6-flash, gemini-3-flash, gemma-3-12b
