@@ -12,6 +12,7 @@
 - `src/stream.ts`: request transformation, response normalization, and streaming.
 - `src/index.ts`: provider registration.
 - `test/`: Vitest unit tests and the gateway smoke test.
+- `CHANGELOG.md`: unreleased release notes and published version history.
 
 ## Neon AI Gateway Documentation
 
