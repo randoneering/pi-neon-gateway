@@ -79,6 +79,30 @@ describe("resolveNeonBaseUrl", () => {
 		expect(result).toBe("https://from-process.ai.neon.tech/v1");
 	});
 
+	it("uses process env when credential env is empty", async () => {
+		const { resolveNeonBaseUrl } = await import("../src/config.js");
+		expect(resolveNeonBaseUrl({
+			processEnv: { NEON_AI_GATEWAY_BASE_URL: "https://from-process.ai.neon.tech" },
+			credentialEnv: { NEON_AI_GATEWAY_BASE_URL: "" },
+		})).toBe("https://from-process.ai.neon.tech/v1");
+	});
+
+	it("uses credential env when process env is empty", async () => {
+		const { resolveNeonBaseUrl } = await import("../src/config.js");
+		expect(resolveNeonBaseUrl({
+			processEnv: { NEON_AI_GATEWAY_BASE_URL: "" },
+			credentialEnv: { NEON_AI_GATEWAY_BASE_URL: "https://from-cred.ai.neon.tech" },
+		})).toBe("https://from-cred.ai.neon.tech/v1");
+	});
+
+	it("returns undefined when both sources are empty", async () => {
+		const { resolveNeonBaseUrl } = await import("../src/config.js");
+		expect(resolveNeonBaseUrl({
+			processEnv: { NEON_AI_GATEWAY_BASE_URL: "" },
+			credentialEnv: { NEON_AI_GATEWAY_BASE_URL: "" },
+		})).toBeUndefined();
+	});
+
 	it("returns undefined when no source provides a value", async () => {
 		const { resolveNeonBaseUrl } = await import("../src/config.js");
 		const result = resolveNeonBaseUrl({ processEnv: {} });

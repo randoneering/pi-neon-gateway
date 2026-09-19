@@ -47,7 +47,7 @@ export interface ResolveOptions {
 export function resolveNeonBaseUrl(options: ResolveOptions = {}): string | undefined {
 	const fromCredential = options.credentialEnv?.[NEON_AI_GATEWAY_BASE_URL_ENV];
 	const fromProcess = options.processEnv?.[NEON_AI_GATEWAY_BASE_URL_ENV];
-	const raw = fromCredential ?? fromProcess;
+	const raw = fromCredential || fromProcess;
 	if (!raw) return undefined;
 	const normalized = normalizeNeonBaseUrl(raw);
 	return `${normalized}/v1`;

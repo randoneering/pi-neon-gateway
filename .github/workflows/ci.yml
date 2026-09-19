@@ -29,3 +29,12 @@ jobs:
       - run: npm run check
 
       - run: npm test
+
+      - name: Check package contents
+        run: |
+          npm pack --dry-run 2>&1 | tee pack-output.txt
+          grep -q 'src/index.ts' pack-output.txt
+          grep -q 'README.md' pack-output.txt
+          grep -q 'LICENSE' pack-output.txt
+
+      - run: npm audit --omit=dev || true

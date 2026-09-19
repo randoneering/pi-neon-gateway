@@ -13,7 +13,7 @@ autolabeler:
       - '/^feat(\(.+\))?:/i'
   - label: "fix"
     branch:
-      - '/^fix\//'
+      - '/^(fix|bugfix)\//'
     title:
       - '/^fix(\(.+\))?:/i'
   - label: "docs"
@@ -63,7 +63,7 @@ autolabeler:
     title:
       - '/^[a-z]+(\(.+\))?!:/i'
     body:
-      - '/breaking change/i'
+      - '/^BREAKING CHANGE:/im'
 
 categories:
   - title: "Features"

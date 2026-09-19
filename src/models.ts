@@ -17,7 +17,6 @@ interface NeonModelInput {
 	context: number;
 	output: number;
 	cost: { input: number; output: number; cacheRead: number; cacheWrite: number };
-	thinking?: boolean;
 }
 
 function m(entry: NeonModelInput): Model<Api> {
@@ -258,7 +257,7 @@ export const NEON_MODELS: Model<"openai-completions">[] = [
 		reasoning: true,
 		input: ["text"],
 		context: 131_072,
-		output: 25_000,
+		output: 65_536,
 		cost: { input: 0.15, output: 0.6, cacheRead: 0, cacheWrite: 0 },
 	}),
 	m({
@@ -267,7 +266,7 @@ export const NEON_MODELS: Model<"openai-completions">[] = [
 		reasoning: true,
 		input: ["text"],
 		context: 131_072,
-		output: 25_000,
+		output: 65_536,
 		cost: { input: 0.07, output: 0.3, cacheRead: 0, cacheWrite: 0 },
 	}),
 	m({
@@ -320,7 +319,7 @@ export const NEON_MODELS: Model<"openai-completions">[] = [
 		name: "Llama-3.3-70B-Instruct",
 		reasoning: false,
 		input: ["text"],
-		context: 128_000,
+		context: 131_072,
 		output: 8192,
 		cost: { input: 0.5, output: 1.5, cacheRead: 0, cacheWrite: 0 },
 	}),
@@ -346,6 +345,11 @@ export const NEON_MODELS: Model<"openai-completions">[] = [
 
 const MODEL_IDS = new Set(NEON_MODELS.map((model) => model.id));
 
+function canonicalModelId(id: string): string {
+	const lower = id.toLowerCase();
+	return lower.startsWith("databricks-") ? lower.slice("databricks-".length) : lower;
+}
+
 export function isKnownNeonModel(id: string): boolean {
-	return MODEL_IDS.has(id);
+	return MODEL_IDS.has(canonicalModelId(id));
 }

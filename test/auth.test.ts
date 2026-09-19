@@ -22,6 +22,17 @@ function readAuthFileLike(authPath: string): Record<string, unknown> {
 	return JSON.parse(raw) as Record<string, unknown>;
 }
 
+describe("validateGatewayToken", () => {
+	it("rejects command and environment expressions", () => {
+		expect(() => authModule.validateGatewayToken("!echo secret")).toThrow(/literal token/);
+		expect(() => authModule.validateGatewayToken("$TOKEN")).toThrow(/literal token/);
+	});
+
+	it("accepts a literal gateway token", () => {
+		expect(() => authModule.validateGatewayToken("nt_live_example")).not.toThrow();
+	});
+});
+
 describe("auth file shape", () => {
 	let tempDir: string;
 	beforeEach(() => {
