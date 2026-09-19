@@ -45,6 +45,7 @@ describe("NEON_MODELS", () => {
 describe("isKnownNeonModel", () => {
 	it("returns true for known ids", () => {
 		expect(isKnownNeonModel("gpt-5")).toBe(true);
+		expect(isKnownNeonModel("databricks-gpt-5")).toBe(true);
 	});
 
 	it("returns false for unknown ids", () => {

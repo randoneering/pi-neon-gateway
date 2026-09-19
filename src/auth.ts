@@ -23,6 +23,12 @@ import {
 
 const PROVIDER_ID = "neon";
 
+export function validateGatewayToken(value: string): void {
+	if (value.startsWith("!") || value.startsWith("$")) {
+		throw new Error("Neon AI Gateway token must be a literal token, not a shell expression");
+	}
+}
+
 interface AuthFileShape {
 	[key: string]: unknown;
 }
@@ -67,6 +73,12 @@ export function registerNeonAuthCommands(pi: ExtensionAPI): void {
 			const token = await ctx.ui.input("Enter Neon AI Gateway token");
 			if (!token) {
 				ctx.ui.notify("Neon login cancelled: no token provided", "warning");
+				return;
+			}
+			try {
+				validateGatewayToken(token);
+			} catch (error) {
+				ctx.ui.notify((error as Error).message, "error");
 				return;
 			}
 			const baseUrlInput = await ctx.ui.input(
