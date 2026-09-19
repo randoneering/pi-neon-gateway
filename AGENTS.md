@@ -12,6 +12,14 @@
 - `src/stream.ts`: request transformation, response normalization, and streaming.
 - `src/index.ts`: provider registration.
 - `test/`: Vitest unit tests and the gateway smoke test.
+
+## Neon AI Gateway Documentation
+
+- [AI Gateway overview](https://neon.com/docs/ai/ai-gateway)
+- [Chat Completions API](https://neon.com/docs/ai-gateway/chat-completions)
+- [Available models](https://neon.com/models.json)
+
+Use the upstream documentation when checking model limits, request fields, authentication, or response behavior.
 - `.github/workflows/`: CI and npm publishing workflows.
 
 ## Development
