@@ -11,8 +11,8 @@
  * - Translates GPT-OSS "harmony" content arrays into the flat
  *   `content` + `reasoning_content` shape that the OpenAI Chat Completions
  *   parser expects, so reasoning shows up in pi's thinking block.
- * - Unwraps Neon's nested error envelope (`{ error: { message } }`) into
- *   a flat shape so pi's overflow detector and users see clean messages.
+ * - Wraps Neon's flat error responses in the nested `{ error: { message } }`
+ *   shape expected by pi's overflow detector and error handling.
  */
 
 import {
@@ -54,7 +54,7 @@ function removeKeys(payload: Record<string, unknown>, keys: readonly string[]): 
 	for (const key of keys) delete payload[key];
 }
 
-function canonicalModelId(modelId: string): string {
+export function canonicalModelId(modelId: string): string {
 	const lower = modelId.toLowerCase();
 	return lower.startsWith("databricks-") ? lower.slice("databricks-".length) : lower;
 }
@@ -79,7 +79,13 @@ export function transformNeonPayload(value: unknown, modelId: string): unknown {
 		else if (payload.temperature !== undefined) delete payload.top_p;
 	} else if (id === "gemini-3-6-flash") {
 		removeKeys(payload, ["frequency_penalty", "presence_penalty", "temperature", "top_p"]);
-	} else if (id === "gemini-3-5-flash-lite") {
+	} else if (
+		id === "gemini-3-1-flash-lite" ||
+		id === "gemini-3-1-pro" ||
+		id === "gemini-3-5-flash" ||
+		id === "gemini-3-5-flash-lite" ||
+		id === "gemini-3-flash"
+	) {
 		removeKeys(payload, ["frequency_penalty", "presence_penalty"]);
 	} else if (id.includes("llama")) {
 		removeKeys(payload, ["frequency_penalty", "presence_penalty", "seed"]);
@@ -94,6 +100,8 @@ export function transformNeonPayload(value: unknown, modelId: string): unknown {
 		// explicitly "none" in chat completions. Omitting the field leaves
 		// the model's default effort, which is rejected too, so set it.
 		if (payload.tools !== undefined) payload.reasoning_effort = "none";
+	} else {
+		// Unknown models keep sampling fields until the upstream contract is known.
 	}
 	return payload;
 }
@@ -146,8 +154,9 @@ function normalizeEventStream(body: ReadableStream<Uint8Array>): ReadableStream<
 	const encoder = new TextEncoder();
 	let buffer = "";
 	const rewriteLine = (line: string): string => {
-		if (!line.startsWith("data:")) return line;
-		const payload = line.slice("data:".length).trim();
+		const match = /^\s*data:(.*)$/u.exec(line);
+		if (!match) return line;
+		const payload = (match[1] ?? "").trim();
 		if (!payload || payload === "[DONE]") return line;
 		try {
 			const normalized = normalizeChunk(JSON.parse(payload));
@@ -166,7 +175,7 @@ function normalizeEventStream(body: ReadableStream<Uint8Array>): ReadableStream<
 			},
 			flush(controller) {
 				buffer += decoder.decode();
-				if (buffer) controller.enqueue(encoder.encode(rewriteLine(buffer)));
+				if (buffer) controller.enqueue(encoder.encode(`${rewriteLine(buffer)}\n`));
 			},
 		}),
 	);
@@ -203,7 +212,10 @@ function normalizeError(value: unknown): unknown | undefined {
 	const code =
 		typeof value.error_code === "string" ? value.error_code : typeof value.code === "string" ? value.code : undefined;
 	const type = typeof value.type === "string" ? value.type : code;
-	return { error: { message: unwrapErrorMessage(rawMessage), type, code } };
+	const error: Record<string, string> = { message: unwrapErrorMessage(rawMessage) };
+	if (type !== undefined) error.type = type;
+	if (code !== undefined) error.code = code;
+	return { error };
 }
 
 function makeNeonFetch(baseFetch: FetchFunction | undefined, isHarmonyModel: boolean): FetchFunction {
@@ -218,7 +230,15 @@ function makeNeonFetch(baseFetch: FetchFunction | undefined, isHarmonyModel: boo
 				headers: rewrittenHeaders(response.headers),
 			});
 		}
-		if (response.ok || !contentType.includes("application/json")) return response;
+		if (response.ok) return response;
+		const canParseJson =
+			contentType.includes("application/json") ||
+			contentType.includes("+json") ||
+			contentType === "";
+		if (!canParseJson) {
+			const text = await response.clone().text();
+			if (!text.trimStart().startsWith("{")) return response;
+		}
 
 		let value: unknown;
 		try {
@@ -240,7 +260,10 @@ function makeNeonFetch(baseFetch: FetchFunction | undefined, isHarmonyModel: boo
 // Error stream factory (used when the base URL is missing)
 // ---------------------------------------------------------------------------
 
-function missingBaseUrlStream(model: Model<NeonApi>): AssistantMessageEventStream {
+function missingBaseUrlStream(
+	model: Model<NeonApi>,
+	errorMessage?: string,
+): AssistantMessageEventStream {
 	const stream = createAssistantMessageEventStream();
 	const output: AssistantMessage = {
 		role: "assistant",
@@ -257,7 +280,9 @@ function missingBaseUrlStream(model: Model<NeonApi>): AssistantMessageEventStrea
 			cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
 		},
 		stopReason: "error",
-		errorMessage: `Neon AI Gateway base URL not configured. Set ${NEON_AI_GATEWAY_BASE_URL_ENV} or run /login neon.`,
+		errorMessage:
+			errorMessage ??
+			`Neon AI Gateway base URL not configured. Set ${NEON_AI_GATEWAY_BASE_URL_ENV} or run /login neon.`,
 		timestamp: Date.now(),
 	};
 	queueMicrotask(() => {
@@ -276,10 +301,15 @@ export function streamNeon(model: Model<Api>, context: Context, options?: Simple
 	if (model.api !== "openai-completions") {
 		throw new Error(`streamNeon expects openai-completions, got ${model.api}`);
 	}
-	const baseUrl = resolveNeonBaseUrl({
-		processEnv: process.env as Record<string, string | undefined>,
-		credentialEnv: options?.env,
-	});
+	let baseUrl: string | undefined;
+	try {
+		baseUrl = resolveNeonBaseUrl({
+			processEnv: process.env as Record<string, string | undefined>,
+			credentialEnv: options?.env,
+		});
+	} catch (error) {
+		return missingBaseUrlStream(model as Model<NeonApi>, (error as Error).message);
+	}
 	if (!baseUrl) {
 		return missingBaseUrlStream(model as Model<NeonApi>);
 	}
